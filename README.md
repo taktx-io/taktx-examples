@@ -12,8 +12,7 @@ The sources on the master branch work with the current TaktX release.
 
 - `client-workers-quarkus` — Quarkus-based example workers 
 - `client-swagger-ui` — A simple static web server serving the Swagger UI to interact with TaktX using the TaktXClient.
-
-(You can add more modules alongside `such as Spring-based examples or small test clients.)
+- `docker/docker-compose-full` — Docker Compose setup for a local full TaktX environment with all components.
 
 ## License
 This repository is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
