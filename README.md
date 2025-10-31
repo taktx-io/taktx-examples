@@ -1,58 +1,19 @@
-# taktx-worker-quarkus-example
+# taktx-worker-examples (collection)
 
-Example Quarkus application containing workers for TaktX engine
+This repository is a collection of small example modules that demonstrate different ways to use and build components for TaktX. 
+The root project centralizes common Gradle configuration and helper tasks so modules can be lightweight and focused on their framework.
 
-## Prerequisites
+Modules live under the repository root (for example `client-workers-quarkus/`). Each module should provide its own `README.md` with framework-specific instructions. 
+The root README documents global commands and how to add new modules.
 
-- Java 17 or higher
-- Gradle (or use the included Gradle wrapper)
+The sources on the master branch work with the current TaktX release.
 
-## Building the Application
+## Current modules
 
-To build the application, run:
+- `client-workers-quarkus` — Quarkus-based example workers 
+- `client-swagger-ui` — A simple static web server serving the Swagger UI to interact with TaktX using the TaktXClient.
 
-```bash
-./gradlew build
-```
+(You can add more modules alongside `such as Spring-based examples or small test clients.)
 
-## Running the Application
-
-### Development Mode
-
-To run the application in development mode with live reload:
-
-```bash
-./gradlew quarkusDev
-```
-
-### Production Mode
-
-To run the application in production mode:
-
-```bash
-./gradlew build
-java -jar build/quarkus-app/quarkus-run.jar
-```
-
-## Testing
-
-To run the tests:
-
-```bash
-./gradlew test
-```
-
-## API Endpoints
-
-- `GET /hello` - Returns a greeting message
-
-## Project Structure
-
-```
-src/
-├── main/
-│   ├── java/io/taktx/     # Application source code
-│   └── resources/          # Application configuration
-└── test/
-    └── java/io/taktx/     # Test source code
-```
+## License
+This repository is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.

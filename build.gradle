@@ -1,38 +1,41 @@
+// Add the Ben Manes Versions plugin to the build so we can detect dependency updates
 plugins {
-    id 'java'
-    id 'io.quarkus'
+    id 'com.github.ben-manes.versions' version '0.53.0'
 }
 
-repositories {
-    mavenCentral()
-    mavenLocal()
+// Root build.gradle - common configuration for all modules
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    group = project.findProperty('group') ?: 'io.taktx'
+    version = project.findProperty('version') ?: '1.0.0-SNAPSHOT'
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
+
+    test {
+        useJUnitPlatform()
+        systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    }
 }
 
-dependencies {
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'io.quarkus:quarkus-rest'
-    implementation 'io.quarkus:quarkus-arc'
-    testImplementation 'io.quarkus:quarkus-junit5'
-    testImplementation 'io.rest-assured:rest-assured'
+// A convenience task to run the dependency updates report across all subprojects
+tasks.register('checkDependencyUpdates') {
+    group = 'verification'
+    description = 'Runs the dependencyUpdates report to find newer versions of dependencies and platforms.'
+    dependsOn('dependencyUpdates')
 }
 
-group 'io.taktx'
-version '1.0.0-SNAPSHOT'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
-test {
-    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-}
-
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
-}
-
-compileTestJava {
-    options.encoding = 'UTF-8'
-}
+// Quarkus-specific configuration should remain in quarkus modules' build files.
