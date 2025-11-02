@@ -1,9 +1,9 @@
 // Root settings.gradle - central pluginManagement and included modules
 pluginManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
-        mavenLocal()
     }
     plugins {
         // quarkus plugin version resolved from root gradle.properties
@@ -14,5 +14,5 @@ pluginManagement {
 rootProject.name = 'taktx-worker-quarkus-example'
 
 // include module projects here
-include 'client-workers-quarkus', 'client-swagger-ui'
+include 'client-workers-vanilla-pure', 'client-workers-vanilla-annotations', 'client-workers-quarkus', 'client-swagger-ui'
 

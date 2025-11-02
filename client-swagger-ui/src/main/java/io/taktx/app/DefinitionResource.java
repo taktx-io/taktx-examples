@@ -11,7 +11,6 @@ package io.taktx.app;
 import io.taktx.client.TaktXClient;
 import io.taktx.dto.ProcessDefinitionDTO;
 import io.taktx.dto.ProcessDefinitionKey;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -21,28 +20,32 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 
 @Path("/processdefinitions")
-@Slf4j
 public class DefinitionResource {
+  private static final Logger LOG = Logger.getLogger(DefinitionResource.class.getName());
 
-  @Inject TaktXClient taktClient;
+  private final TaktXClient taktXClient;
+
+  public DefinitionResource(TaktXClient taktXClient) {
+    this.taktXClient = taktXClient;
+  }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getAllProcessDefinitions(@QueryParam("id") String processDefinitionId) {
     try {
-      log.info("Retrieving process definitions {}", processDefinitionId);
+      LOG.info("Retrieving process definitions " + processDefinitionId);
       Map<ProcessDefinitionKey, ProcessDefinitionDTO> definitions;
       if (processDefinitionId != null && !processDefinitionId.isEmpty()) {
         definitions =
-            taktClient
+            taktXClient
                 .getProcessDefinitionConsumer()
                 .getDeployedProcessDefinitions(processDefinitionId);
       } else {
-        definitions = taktClient.getProcessDefinitionConsumer().getDeployedProcessDefinitions();
+        definitions = taktXClient.getProcessDefinitionConsumer().getDeployedProcessDefinitions();
       }
 
       // Group definitions by process definition ID
@@ -55,7 +58,7 @@ public class DefinitionResource {
 
       return Response.ok(groupedDefinitions).build();
     } catch (Exception e) {
-      log.error("Error retrieving process definitions", e);
+      LOG.severe("Error retrieving process definitions" + e.getMessage());
       return Response.serverError().entity("Error retrieving process definitions").build();
     }
   }
@@ -70,6 +73,6 @@ public class DefinitionResource {
     Integer version = Integer.parseInt(split[1]);
     ProcessDefinitionKey processDefinitionKey =
         new ProcessDefinitionKey(processDefinitionId, version);
-    return taktClient.getProcessDefinitionXml(processDefinitionKey);
+    return taktXClient.getProcessDefinitionXml(processDefinitionKey);
   }
 }

@@ -2,7 +2,7 @@ package io.taktx.app.workers;
 
 import io.quarkus.runtime.Startup;
 import io.taktx.client.ExternalTaskInstanceResponder;
-import io.taktx.client.annotation.TaktWorkerMethod;
+import io.taktx.client.annotation.JobWorker;
 import io.taktx.client.annotation.Variable;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ServiceTaskWorker {
    * @param deserializedVar a deserialized object of type TestType extracted using @Variable
    * @param listVar a list of strings
    */
-  @TaktWorkerMethod(taskId = "task1", autoComplete = true)
+  @JobWorker(taskId = "task1", autoComplete = true)
   public TestResultType task1(
       int intVar,
       String stringVar,
@@ -63,7 +63,7 @@ public class ServiceTaskWorker {
    * @param result2
    * @return Map object containing result3 and result4
    */
-  @TaktWorkerMethod(taskId = "task2", autoComplete = true)
+  @JobWorker(taskId = "task2", autoComplete = true)
   public Map<String, Object> task2(int result1, String result2) {
     logger.info("Task2 called with: result1={}, result2={}", result1, result2);
     return Map.of("result3", result1, "result4", result2);
@@ -79,7 +79,7 @@ public class ServiceTaskWorker {
    * @param result4 the string result from task2
    * @param externalTaskInstanceResponder the responder to use to complete the task
    */
-  @TaktWorkerMethod(taskId = "task3", autoComplete = false)
+  @JobWorker(taskId = "task3", autoComplete = false)
   public void task2(
       int result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
     logger.info("Task3 called with: result3={}, result4={}", result3, result4);

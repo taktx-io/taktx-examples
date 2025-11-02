@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
+import java.util.logging.Logger;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -34,8 +34,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 @Path("/processes")
-@Slf4j
 public class ProcessResource {
+  private static final Logger LOG = Logger.getLogger(ProcessResource.class.getName());
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Inject TaktXClient taktClient;
@@ -126,7 +126,7 @@ public class ProcessResource {
   void increment() {
     jobs.forEach(
         (key, value) -> {
-          log.info("Starting {} jobs {}", value.count, value.process);
+          LOG.info(String.format("Starting %d jobs %s", value.count, value.process));
           for (int i = 0; i < value.count; i++) {
             taktClient.startProcess(value.process, value.variables);
           }

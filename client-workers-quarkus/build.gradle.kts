@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("io.quarkus")
+    alias(libs.plugins.quarkus)
     alias(libs.plugins.spotless)
 }
 
@@ -31,13 +31,11 @@ tasks {
 dependencies {
     implementation(enforcedPlatform(libs.quarkus.camel.bom.get()))
     implementation(enforcedPlatform(libs.quarkus.bom.get()))
-    implementation("io.quarkus:quarkus-rest")
-    implementation("io.quarkus:quarkus-arc")
-    implementation("io.quarkus:quarkus-jaxb")
-    implementation("io.taktx:taktx-client-quarkus:0.0.8-alpha-10")
-
-    testImplementation("io.quarkus:quarkus-junit5")
-    testImplementation("io.rest-assured:rest-assured")
+    implementation(libs.quarkus.rest)
+    implementation(libs.quarkus.arc)
+    implementation(libs.quarkus.jaxb)
+    implementation(libs.taktx.client.quarkus)
+    testImplementation(libs.quarkus.junit5)
 }
 
 // Adds dependency locking to ensure reproducible builds

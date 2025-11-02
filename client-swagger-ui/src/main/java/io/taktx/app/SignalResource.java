@@ -12,14 +12,15 @@ import io.taktx.client.TaktXClient;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Path("/signals")
-@Slf4j
-@RequiredArgsConstructor
 public class SignalResource {
+
   private final TaktXClient taktClient;
+
+  public SignalResource(TaktXClient taktXClient) {
+    this.taktClient = taktXClient;
+  }
 
   @POST
   @Path("/{signal}")
