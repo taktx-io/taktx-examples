@@ -13,6 +13,10 @@
           <zeebe:input source="={&#10;  &#34;field1&#34;: 123,&#10;  &#34;field2&#34;: &#34;field2value&#34;&#10;}" target="mapVar" />
           <zeebe:input source="=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]" target="listVar" />
         </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="header1" value="headerValue1" />
+          <zeebe:header key="header2" value="headerValue2" />
+        </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1swotv4</bpmn:incoming>
       <bpmn:outgoing>Flow_1s1trvv</bpmn:outgoing>

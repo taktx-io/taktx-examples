@@ -8,12 +8,10 @@ import io.taktx.dto.ExternalTaskTriggerDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class MyServiceTaskWorker implements ExternalTaskTriggerConsumer {
 
   private final TaktXClient taktXClient;
-  private static final Logger logger = Logger.getLogger(MyServiceTaskWorker.class.getName());
 
   public MyServiceTaskWorker(TaktXClient taktXClient) {
     this.taktXClient = taktXClient;
@@ -38,7 +36,7 @@ public class MyServiceTaskWorker implements ExternalTaskTriggerConsumer {
           handleTask3(taskTrigger);
           break;
         default:
-          logger.warning("Unknown external task id " + taskTrigger.getExternalTaskId());
+          System.out.println("Unknown external task id " + taskTrigger.getExternalTaskId());
           break;
       }
     }
@@ -49,24 +47,24 @@ public class MyServiceTaskWorker implements ExternalTaskTriggerConsumer {
     int intVar = taskTrigger.getVariables().get("intVar").asInt();
     String stringVar = taskTrigger.getVariables().get("stringVar").asText();
     Map<String, JsonNode> allVariablesMap = taskTrigger.getVariables().getVariables();
-
-    logger.info(
-        String.format(
-            """
-          Task1 called with:
-          intVar=%d
-          stringVar=%s
-          allVariablesMap=%s
-        """,
-            intVar, stringVar, allVariablesMap.toString()));
+    Map<String, String> headers = taskTrigger.getHeaders();
+    System.out.printf(
+        """
+              Task1 called with:
+              intVar=%d
+              stringVar=%s
+              headers=%s
+              allVariablesMap=%s
+            %n""",
+        intVar, stringVar, headers, allVariablesMap.toString());
 
     taktXClient.respondToExternalTask(taskTrigger).respondSuccess(new TestResultType(123, "abc"));
   }
 
   // Worker method for task2
   private void handleTask2(ExternalTaskTriggerDTO taskTrigger) {
-    int result3 = taskTrigger.getVariables().get("result3").asInt();
-    String result4 = taskTrigger.getVariables().get("result4").asText();
+    int result3 = taskTrigger.getVariables().get("result1").asInt();
+    String result4 = taskTrigger.getVariables().get("result2").asText();
     taktXClient
         .respondToExternalTask(taskTrigger)
         .respondSuccess(Map.of("result3", result3, "result4", result4));

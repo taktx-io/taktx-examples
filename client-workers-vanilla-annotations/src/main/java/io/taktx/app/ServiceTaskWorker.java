@@ -1,15 +1,13 @@
 package io.taktx.app;
 
 import io.taktx.client.ExternalTaskInstanceResponder;
+import io.taktx.client.annotation.CustomHeaders;
 import io.taktx.client.annotation.JobWorker;
 import io.taktx.client.annotation.Variable;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class ServiceTaskWorker {
-  private static final Logger logger = Logger.getLogger(ServiceTaskWorker.class.getName());
-
   /**
    * A typical worker method demonstrating various parameter types, including primitive types, maps,
    * deserialized objects, and lists.
@@ -31,8 +29,9 @@ public class ServiceTaskWorker {
       Map<String, Object> allVariablesMap,
       @Variable("mapVar") Map<String, Object> singleVarMap,
       @Variable("mapVar") TestType deserializedVar,
+      @CustomHeaders Map<String, String> headers,
       List<String> listVar) {
-    logger.info(
+    System.out.println(
         String.format(
             """
         Task1 called with:
@@ -41,9 +40,10 @@ public class ServiceTaskWorker {
         allVariablesMap=%s
         mapVar=%s
         deserializedVar=%s
+        headers=%s
         listVar=%s
         """,
-            intVar, stringVar, allVariablesMap, singleVarMap, deserializedVar, listVar));
+            intVar, stringVar, allVariablesMap, singleVarMap, deserializedVar, headers, listVar));
     return new TestResultType(intVar, stringVar);
   }
 
@@ -56,7 +56,8 @@ public class ServiceTaskWorker {
    */
   @JobWorker(taskId = "task2", autoComplete = true)
   public Map<String, Object> task2(int result1, String result2) {
-    logger.info(String.format("Task2 called with: result1=%d, result2=%s", result1, result2));
+    System.out.println(
+        String.format("Task2 called with: result1=%d, result2=%s", result1, result2));
     return Map.of("result3", result1, "result4", result2);
   }
 
@@ -73,7 +74,8 @@ public class ServiceTaskWorker {
   @JobWorker(taskId = "task3", autoComplete = false)
   public void task2(
       int result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
-    logger.info(String.format("Task3 called with: result3=%d, result4=%s", result3, result4));
+    System.out.println(
+        String.format("Task3 called with: result3=%d, result4=%s", result3, result4));
     externalTaskInstanceResponder.respondSuccess(new TestResultType(result3, result4));
   }
 

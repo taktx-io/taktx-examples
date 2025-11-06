@@ -2,6 +2,7 @@ package io.taktx.app.workers;
 
 import io.quarkus.runtime.Startup;
 import io.taktx.client.ExternalTaskInstanceResponder;
+import io.taktx.client.annotation.CustomHeaders;
 import io.taktx.client.annotation.JobWorker;
 import io.taktx.client.annotation.Variable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,6 +37,7 @@ public class ServiceTaskWorker {
       Map<String, Object> allVariablesMap,
       @Variable("mapVar") Map<String, Object> singleVarMap,
       @Variable("mapVar") TestType deserializedVar,
+      @CustomHeaders Map<String, String> headers,
       List<String> listVar) {
     logger.info(
         """
@@ -45,6 +47,7 @@ public class ServiceTaskWorker {
         allVariablesMap={}
         mapVar={}
         deserializedVar={}
+        headers={}
         listVar={}
         """,
         intVar,
@@ -52,6 +55,7 @@ public class ServiceTaskWorker {
         allVariablesMap,
         singleVarMap,
         deserializedVar,
+        headers,
         listVar);
     return new TestResultType(intVar, stringVar);
   }
