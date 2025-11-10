@@ -21,10 +21,14 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -44,6 +48,7 @@ public class ProcessResource {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
   @Path("/{process}/{count}")
   @RequestBody(
       required = false, // so Swagger UI does NOT say "Request body required"
@@ -64,16 +69,19 @@ public class ProcessResource {
         { "foo": "bar", "count": 3, "flags": ["a","b"], "meta": { "priority": true } }
       """)
               }))
-  public void startProcessInstance(
+  public List<UUID> startProcessInstance(
       @PathParam("process") String process, @PathParam("count") int count, String payload)
       throws JsonProcessingException {
     JsonNode jsonNode = objectMapper.readTree(payload);
 
     VariablesDTO variables = VariablesDTO.empty();
     jsonNode.fieldNames().forEachRemaining(key -> variables.put(key, jsonNode.get(key)));
+    List<UUID> processInstanceIds = new ArrayList<>();
     for (int i = 0; i < count; i++) {
-      taktClient.startProcess(process, variables);
+      UUID uuid = taktClient.startProcess(process, variables);
+      processInstanceIds.add(uuid);
     }
+    return processInstanceIds;
   }
 
   @POST

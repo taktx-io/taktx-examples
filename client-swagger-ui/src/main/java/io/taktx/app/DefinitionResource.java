@@ -64,13 +64,11 @@ public class DefinitionResource {
   }
 
   @GET
-  @Path("/{processDefinitionId}")
-  public String startProcessInstance(
-      @PathParam("processDefinitionId") String processDefinitionIdVersionString)
+  @Path("/{processDefinitionId}/{version}")
+  public String getProcessDefinitionXml(
+      @PathParam("processDefinitionId") String processDefinitionId,
+      @PathParam("version") int version)
       throws IOException {
-    String[] split = processDefinitionIdVersionString.split("\\.");
-    String processDefinitionId = split[0];
-    Integer version = Integer.parseInt(split[1]);
     ProcessDefinitionKey processDefinitionKey =
         new ProcessDefinitionKey(processDefinitionId, version);
     return taktXClient.getProcessDefinitionXml(processDefinitionKey);
