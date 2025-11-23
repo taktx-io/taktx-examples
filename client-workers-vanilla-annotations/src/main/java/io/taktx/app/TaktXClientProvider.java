@@ -22,6 +22,7 @@ public class TaktXClientProvider {
       AnnotationScanningExternalTaskTriggerConsumer externalTaskTriggerConsumer =
           new AnnotationScanningExternalTaskTriggerConsumer(
               taktXClient.getParameterResolverFactory(),
+              taktXClient.getResultProcessorFactory(),
               taktXClient.getProcessInstanceResponder(),
               taktXClient.getExternalTaskTopicRequester(),
               3,
