@@ -32,7 +32,8 @@ public class TaktXClientProvider {
           externalTaskTriggerConsumer, "taktx-client-external-task-trigger-consumer");
 
       // Register the instance update consumer
-      taktXClient.registerInstanceUpdateConsumer(new MyInstanceUpdateConsumer());
+      taktXClient.registerInstanceUpdateConsumer(
+          "client-vanilla-annotations", new MyInstanceUpdateConsumer());
     }
     return taktXClient;
   }

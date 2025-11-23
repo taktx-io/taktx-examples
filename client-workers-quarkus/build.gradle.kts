@@ -42,9 +42,3 @@ dependencies {
 dependencyLocking {
     lockAllConfigurations()
 }
-
-spotless {
-    java {
-        googleJavaFormat()
-    }
-}

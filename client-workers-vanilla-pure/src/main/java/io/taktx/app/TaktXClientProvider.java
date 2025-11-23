@@ -33,7 +33,8 @@ public class TaktXClientProvider {
           new MyServiceTaskWorker(taktXClient), "worker-group-id");
 
       // Register the instance update consumer
-      taktXClient.registerInstanceUpdateConsumer(new MyInstanceUpdateConsumer());
+      taktXClient.registerInstanceUpdateConsumer(
+          "client-vanilla-pure", new MyInstanceUpdateConsumer());
     }
     return taktXClient;
   }

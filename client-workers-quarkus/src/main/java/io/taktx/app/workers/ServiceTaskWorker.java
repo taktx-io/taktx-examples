@@ -57,7 +57,8 @@ public class ServiceTaskWorker {
         deserializedVar,
         headers,
         listVar);
-    return new TestResultType(intVar, stringVar);
+    int millis = (int) (Math.random() * 100);
+    return new TestResultType(millis, stringVar);
   }
 
   /**
@@ -70,8 +71,8 @@ public class ServiceTaskWorker {
   @JobWorker(taskId = "task2", autoComplete = true)
   public Map<String, Object> task2(int result1, String result2) {
     logger.info("Task2 called with: result1={}, result2={}", result1, result2);
-    return Map.of("result3", result1, "result4", result2);
-  }
+    int millis = (int) (Math.random() * 100);
+    return Map.of("result3", millis, "result4", result2);  }
 
   /**
    * A third worker method that takes the results from task2 and has autoComplete set to false. This
@@ -87,7 +88,8 @@ public class ServiceTaskWorker {
   public void task2(
       int result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
     logger.info("Task3 called with: result3={}, result4={}", result3, result4);
-    externalTaskInstanceResponder.respondSuccess(new TestResultType(result3, result4));
+    int millis = (int) (Math.random() * 1000);
+    externalTaskInstanceResponder.respondSuccess(new TestResultType(millis, result4));
   }
 
   public static class TestResultType {
