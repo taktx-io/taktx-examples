@@ -11,9 +11,11 @@ package io.taktx.app;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.scheduler.Scheduled;
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 import io.taktx.client.TaktXClient;
 import io.taktx.dto.VariablesDTO;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -29,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -43,8 +48,21 @@ public class ProcessResource {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Inject TaktXClient taktClient;
+  @Inject ScheduledExecutorService scheduler;
 
   private final Map<String, Job> jobs = new HashMap<>();
+  private final Map<String, Integer> remainders = new HashMap<>();
+
+  void onStart(@Observes StartupEvent ev) {
+    scheduler = Executors.newSingleThreadScheduledExecutor();
+    scheduler.scheduleAtFixedRate(this::increment, 0, 100, TimeUnit.MILLISECONDS);
+  }
+
+  void onStop(@Observes ShutdownEvent ev) {
+    if (scheduler != null) {
+      scheduler.shutdown();
+    }
+  }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
@@ -130,12 +148,17 @@ public class ProcessResource {
     return Set.copyOf(jobs.values());
   }
 
-  @Scheduled(every = "1s")
   void increment() {
     jobs.forEach(
         (key, value) -> {
-          LOG.info(String.format("Starting %d jobs %s", value.count, value.process));
-          for (int i = 0; i < value.count; i++) {
+          // Calculate instances to start this cycle (every 100ms)
+          int remainder = remainders.getOrDefault(key, 0);
+          int totalToProcess = value.count + remainder;
+          int instancesToStart = totalToProcess / 10;
+          remainders.put(key, totalToProcess % 10);
+
+          LOG.info(String.format("Starting %d jobs %s", instancesToStart, value.process));
+          for (int i = 0; i < instancesToStart; i++) {
             taktClient.startProcess(value.process, value.variables);
           }
         });
