@@ -2,9 +2,13 @@ package io.taktx.app.workers;
 
 import io.quarkus.runtime.Startup;
 import io.taktx.client.ExternalTaskInstanceResponder;
+import io.taktx.client.TaktXBpmnError;
+import io.taktx.client.annotation.AckStrategy;
 import io.taktx.client.annotation.CustomHeaders;
 import io.taktx.client.annotation.JobWorker;
+import io.taktx.client.annotation.ThreadingStrategy;
 import io.taktx.client.annotation.Variable;
+import io.taktx.dto.VariablesDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Map;
@@ -14,23 +18,24 @@ import org.slf4j.LoggerFactory;
 @Startup
 @ApplicationScoped
 public class ServiceTaskWorker {
+
   private static final Logger logger = LoggerFactory.getLogger(ServiceTaskWorker.class);
 
   /**
-   * A typical worker method demonstrating various parameter types, including primitive types, maps,
-   * deserialized objects, and lists.
+   * A typical worker method demonstrating various parameter types, including primitive types, maps, deserialized
+   * objects, and lists.
    *
    * <p>The worker is marked as autoComplete=true, so the task will be automatically completed upon
    * return
    *
-   * @param intVar an integer variable
-   * @param stringVar a string variable
+   * @param intVar          an integer variable
+   * @param stringVar       a string variable
    * @param allVariablesMap a map containing all variables
-   * @param singleVarMap a map variable extracted using @Variable annotation
+   * @param singleVarMap    a map variable extracted using @Variable annotation
    * @param deserializedVar a deserialized object of type TestType extracted using @Variable
-   * @param listVar a list of strings
+   * @param listVar         a list of strings
    */
-  @JobWorker(taskId = "task1", autoComplete = true)
+  @JobWorker(taskId = "task1", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
   public TestResultType task1(
       int intVar,
       String stringVar,
@@ -38,18 +43,18 @@ public class ServiceTaskWorker {
       @Variable("mapVar") Map<String, Object> singleVarMap,
       @Variable("mapVar") TestType deserializedVar,
       @CustomHeaders Map<String, String> headers,
-      List<String> listVar) {
+      List<String> listVar) throws InterruptedException {
     logger.info(
         """
-        Task1 called with:
-        intVar={}
-        stringVar={}
-        allVariablesMap={}
-        mapVar={}
-        deserializedVar={}
-        headers={}
-        listVar={}
-        """,
+            Task1 called with:
+            intVar={}
+            stringVar={}
+            allVariablesMap={}
+            mapVar={}
+            deserializedVar={}
+            headers={}
+            listVar={}
+            """,
         intVar,
         stringVar,
         allVariablesMap,
@@ -57,7 +62,12 @@ public class ServiceTaskWorker {
         deserializedVar,
         headers,
         listVar);
-    int millis = (int) (Math.random() * 100);
+    int millis = (int) (Math.random() * 2000);
+    Thread.sleep(millis);
+    if (millis < 100) {
+      logger.warn("Simulating error in task1, millis={}", millis);
+      throw new TaktXBpmnError(false, "errorRandomToSmall", "Simulated error in task1, millis=" + millis, VariablesDTO.empty() );
+    }
     return new TestResultType(millis, stringVar);
   }
 
@@ -68,31 +78,33 @@ public class ServiceTaskWorker {
    * @param result2
    * @return Map object containing result3 and result4
    */
-  @JobWorker(taskId = "task2", autoComplete = true)
+  @JobWorker(taskId = "task2", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
   public Map<String, Object> task2(int result1, String result2) {
     logger.info("Task2 called with: result1={}, result2={}", result1, result2);
     int millis = (int) (Math.random() * 100);
-    return Map.of("result3", millis, "result4", result2);  }
+    return Map.of("result3", millis, "result4", result2);
+  }
 
   /**
-   * A third worker method that takes the results from task2 and has autoComplete set to false. This
-   * means that the task will not be automatically completed upon return, and the method must
-   * explicitly call the ExternalTaskInstanceResponder to complete the task. Normally you will call
-   * respondSuccess(), but there are also methods to respond with error, escalation, or promise.
+   * A third worker method that takes the results from task2 and has autoComplete set to false. This means that the task
+   * will not be automatically completed upon return, and the method must explicitly call the
+   * ExternalTaskInstanceResponder to complete the task. Normally you will call respondSuccess(), but there are also
+   * methods to respond with error, escalation, or promise.
    *
-   * @param result3 the integer result from task2
-   * @param result4 the string result from task2
+   * @param result3                       the integer result from task2
+   * @param result4                       the string result from task2
    * @param externalTaskInstanceResponder the responder to use to complete the task
    */
-  @JobWorker(taskId = "task3", autoComplete = false)
-  public void task2(
-      int result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
+  @JobWorker(taskId = "task3", autoComplete = false, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
+  public void task3(
+      Integer result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
     logger.info("Task3 called with: result3={}, result4={}", result3, result4);
     int millis = (int) (Math.random() * 1000);
     externalTaskInstanceResponder.respondSuccess(new TestResultType(millis, result4));
   }
 
   public static class TestResultType {
+
     private int result1;
     private String result2;
 
@@ -119,6 +131,7 @@ public class ServiceTaskWorker {
   }
 
   public static class TestType {
+
     private int field1;
     private String field2;
 
