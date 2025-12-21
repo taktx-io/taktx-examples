@@ -2,7 +2,7 @@
 quarkus = "3.28.4"
 junit = "5.10.1"
 jaxb = "3.0.2"
-taktx = "0.0.9-alpha-1"
+taktx = "0.0.10-alpha-3"
 
 [libraries]
 # Quarkus dependencies
