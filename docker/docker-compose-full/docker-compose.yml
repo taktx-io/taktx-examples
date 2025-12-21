@@ -48,7 +48,7 @@ services:
       - KAFKA_CLUSTERS_0_PROPERTIES_PRODUCER_VALUE_SERIALIZER=org.apache.kafka.common.serialization.HexSerializer
 
   taktx:
-    image: ghcr.io/taktx-io/taktx-engine:0.0.10-alpha-3
+    image: ghcr.io/taktx-io/taktx-engine:0.0.11-alpha-1
     profiles:
       - engine
       - full
@@ -95,13 +95,10 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
   taktx-console-backend:
-    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-console-backend:${IMAGE_TAG:-latest}
+    image: ghcr.io/taktx-io/taktx-console-backend:latest
     profiles:
       - console
       - full
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
     ports:
       - "8084:8084"
     depends_on:
@@ -129,16 +126,10 @@ services:
       start_period: 20s
 
   taktx-console-frontend:
-    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-console-frontend:${IMAGE_TAG:-latest}
+    image: ghcr.io/taktx-io/taktx-console-frontend:latest
     profiles:
       - console
       - full
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-      args:
-        - NEXT_PUBLIC_TAKTX_BACKEND_URL=http://localhost:8084
-        - NEXT_PUBLIC_TAKTX_WS_URL=ws://localhost:8084/ws
     ports:
       - "3001:3000"
     depends_on:
