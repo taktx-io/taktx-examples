@@ -61,8 +61,8 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9094
       - TAKTX_NAMESPACE=namespace
       - TAKTX_LICENSE_FILE_LOCATION=/opt/taktx/licence.lic
-    volumes:
-      - ~/.taktx/license.lic:/opt/taktx/licence.lic:ro
+#    volumes:
+#      - ~/.taktx/license.lic:/opt/taktx/licence.lic:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/q/health/ready"]
       interval: 10s
