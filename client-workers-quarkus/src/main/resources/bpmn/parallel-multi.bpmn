@@ -8,7 +8,7 @@
     <bpmn:sequenceFlow id="Flow_08cvxvu" sourceRef="Gateway_0mw18f1" targetRef="task1" />
     <bpmn:serviceTask id="task1" name="Task1">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="task1" />
+        <zeebe:taskDefinition type="task1" retries="" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_08cvxvu</bpmn:incoming>
       <bpmn:outgoing>Flow_1y63dh8</bpmn:outgoing>
@@ -85,14 +85,14 @@
         <di:waypoint x="325" y="120" />
         <di:waypoint x="390" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1y63dh8_di" bpmnElement="Flow_1y63dh8">
-        <di:waypoint x="490" y="120" />
-        <di:waypoint x="555" y="120" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0dqyr8c_di" bpmnElement="Flow_0dqyr8c">
         <di:waypoint x="300" y="145" />
         <di:waypoint x="300" y="230" />
         <di:waypoint x="390" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y63dh8_di" bpmnElement="Flow_1y63dh8">
+        <di:waypoint x="490" y="120" />
+        <di:waypoint x="555" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17rbnyp_di" bpmnElement="Flow_17rbnyp">
         <di:waypoint x="490" y="230" />

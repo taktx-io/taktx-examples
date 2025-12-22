@@ -25,7 +25,7 @@
       <bpmn:outgoing>Flow_0wczr8k</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1swotv4" sourceRef="start" targetRef="task1" />
-    <bpmn:serviceTask id="task2" name="task2">
+    <bpmn:serviceTask id="task2" name="task2" zeebe:modelerTemplate="9fe076b1-5437-45e7-af7f-2da9d238be42" zeebe:modelerTemplateVersion="1748515744586" zeebe:modelerTemplateIcon="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;22&#39; height=&#39;22&#39; viewBox=&#39;0 0 22 22&#39; fill=&#39;none&#39;%3E%3Ccircle cx=&#39;11&#39; cy=&#39;11&#39; r=&#39;9&#39; fill=&#39;rgba(0,90,255,255)&#39;/%3E%3Ctext x=&#39;4&#39; y=&#39;13&#39; fill=&#39;white&#39; style=&#39;font-family: Arial; font-size: 5px;&#39;%3ETEST%3C/text%3E%3C/svg%3E">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="task2" />
       </bpmn:extensionElements>
