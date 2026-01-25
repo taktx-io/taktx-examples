@@ -22,7 +22,7 @@ public class ServiceTaskWorker {
    * @param deserializedVar a deserialized object of type TestType extracted using @Variable
    * @param listVar a list of strings
    */
-  @JobWorker(taskId = "task1", autoComplete = true)
+  @JobWorker(type = "task1", autoComplete = true)
   public TestResultType task1(
       int intVar,
       String stringVar,
@@ -54,7 +54,7 @@ public class ServiceTaskWorker {
    * @param result2
    * @return Map object containing result3 and result4
    */
-  @JobWorker(taskId = "task2", autoComplete = true)
+  @JobWorker(type = "task2", autoComplete = true)
   public Map<String, Object> task2(int result1, String result2) {
     System.out.println(
         String.format("Task2 called with: result1=%d, result2=%s", result1, result2));
@@ -71,7 +71,7 @@ public class ServiceTaskWorker {
    * @param result4 the string result from task2
    * @param externalTaskInstanceResponder the responder to use to complete the task
    */
-  @JobWorker(taskId = "task3", autoComplete = false)
+  @JobWorker(type = "task3", autoComplete = false)
   public void task2(
       int result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
     System.out.println(

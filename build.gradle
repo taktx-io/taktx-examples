@@ -3,6 +3,12 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.53.0'
 }
 
+//repositories {
+//    maven {
+//        url "https://nexus3.rabobank.nl/repository/mcv-release"
+//    }
+//    mavenCentral()
+//}
 // Root build.gradle - common configuration for all modules
 subprojects {
     apply plugin: 'java'

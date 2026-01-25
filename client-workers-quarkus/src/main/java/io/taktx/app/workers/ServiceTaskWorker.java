@@ -35,7 +35,7 @@ public class ServiceTaskWorker {
    * @param deserializedVar a deserialized object of type TestType extracted using @Variable
    * @param listVar         a list of strings
    */
-  @JobWorker(taskId = "task1", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
+  @JobWorker(type = "task1", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
   public TestResultType task1(
       int intVar,
       String stringVar,
@@ -78,7 +78,7 @@ public class ServiceTaskWorker {
    * @param result2
    * @return Map object containing result3 and result4
    */
-  @JobWorker(taskId = "task2", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
+  @JobWorker(type = "task2", autoComplete = true, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
   public Map<String, Object> task2(int result1, String result2) {
     logger.info("Task2 called with: result1={}, result2={}", result1, result2);
     int millis = (int) (Math.random() * 100);
@@ -95,7 +95,7 @@ public class ServiceTaskWorker {
    * @param result4                       the string result from task2
    * @param externalTaskInstanceResponder the responder to use to complete the task
    */
-  @JobWorker(taskId = "task3", autoComplete = false, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
+  @JobWorker(type = "task3", autoComplete = false, threadingStrategy = ThreadingStrategy.VIRTUAL_THREAD_FIRE_AND_FORGET, ackStrategy = AckStrategy.IMPLICIT)
   public void task3(
       Integer result3, String result4, ExternalTaskInstanceResponder externalTaskInstanceResponder) {
     logger.info("Task3 called with: result3={}, result4={}", result3, result4);

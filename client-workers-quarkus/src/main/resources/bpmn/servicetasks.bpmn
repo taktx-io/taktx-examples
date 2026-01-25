@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_02ctmia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_02ctmia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.38.1">
   <bpmn:process id="servicetasks" name="test" isExecutable="true">
     <bpmn:extensionElements>
       <zeebe:versionTag value="version tag XYZ" />
@@ -164,20 +164,17 @@
       <bpmndi:BPMNShape id="Gateway_11ijceu_di" bpmnElement="Gateway_11ijceu" isMarkerVisible="true">
         <dc:Bounds x="1215" y="182" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_07dy5id_di" bpmnElement="Event_0v98abu">
-        <dc:Bounds x="1022" y="452" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1vjju11_di" bpmnElement="Activity_0kvwknx" isExpanded="true">
         <dc:Bounds x="315" y="380" width="580" height="200" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1co1si6_di" bpmnElement="Event_1co1si6">
         <dc:Bounds x="355" y="462" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1izaw07_di" bpmnElement="Activity_0mb9x35">
-        <dc:Bounds x="450" y="440" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1w51d2x_di" bpmnElement="Event_1w51d2x">
         <dc:Bounds x="772" y="462" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1izaw07_di" bpmnElement="Activity_0mb9x35">
+        <dc:Bounds x="450" y="440" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ulf2sw_di" bpmnElement="Activity_13n3s08">
         <dc:Bounds x="610" y="440" width="100" height="80" />
@@ -195,6 +192,9 @@
         <di:waypoint x="710" y="480" />
         <di:waypoint x="772" y="480" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_07dy5id_di" bpmnElement="Event_0v98abu">
+        <dc:Bounds x="1022" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0jeqi8l_di" bpmnElement="TextAnnotation_0jeqi8l">
         <dc:Bounds x="250" y="90" width="100" height="55" />
         <bpmndi:BPMNLabel />
