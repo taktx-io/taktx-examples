@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_02ctmia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.38.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_02ctmia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1">
   <bpmn:process id="servicetasks" name="test" isExecutable="true">
     <bpmn:extensionElements>
       <zeebe:versionTag value="version tag XYZ" />
@@ -25,7 +25,7 @@
       <bpmn:outgoing>Flow_0wczr8k</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1swotv4" sourceRef="start" targetRef="task1" />
-    <bpmn:serviceTask id="task2" name="task2" zeebe:modelerTemplate="9fe076b1-5437-45e7-af7f-2da9d238be42" zeebe:modelerTemplateVersion="1748515744586" zeebe:modelerTemplateIcon="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;22&#39; height=&#39;22&#39; viewBox=&#39;0 0 22 22&#39; fill=&#39;none&#39;%3E%3Ccircle cx=&#39;11&#39; cy=&#39;11&#39; r=&#39;9&#39; fill=&#39;rgba(0,90,255,255)&#39;/%3E%3Ctext x=&#39;4&#39; y=&#39;13&#39; fill=&#39;white&#39; style=&#39;font-family: Arial; font-size: 5px;&#39;%3ETEST%3C/text%3E%3C/svg%3E">
+    <bpmn:serviceTask id="task2" name="Create shipment request" zeebe:modelerTemplate="9fe076b1-5437-45e7-af7f-2da9d238be42" zeebe:modelerTemplateVersion="1748515744586" zeebe:modelerTemplateIcon="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;22&#39; height=&#39;22&#39; viewBox=&#39;0 0 22 22&#39; fill=&#39;none&#39;%3E%3Ccircle cx=&#39;11&#39; cy=&#39;11&#39; r=&#39;9&#39; fill=&#39;rgba(0,90,255,255)&#39;/%3E%3Ctext x=&#39;4&#39; y=&#39;13&#39; fill=&#39;white&#39; style=&#39;font-family: Arial; font-size: 5px;&#39;%3ETEST%3C/text%3E%3C/svg%3E">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="task2" />
       </bpmn:extensionElements>
@@ -35,7 +35,7 @@
     <bpmn:endEvent id="Event_0x8l83f">
       <bpmn:incoming>Flow_06gfsoy</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="task3" name="task3">
+    <bpmn:serviceTask id="task3" name="Confirm shipment &#38; notify customer">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="task3" />
         <zeebe:ioMapping>
@@ -45,14 +45,14 @@
       <bpmn:incoming>Flow_1rwe04q</bpmn:incoming>
       <bpmn:outgoing>Flow_19opnh3</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:intermediateCatchEvent id="Event_189m53w" name="3S">
+    <bpmn:intermediateCatchEvent id="Event_189m53w" name="Wait for warehouse acknowledgement">
       <bpmn:incoming>Flow_13sc11o</bpmn:incoming>
       <bpmn:outgoing>Flow_08yidnf</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0x0b78u">
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT3S</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:intermediateCatchEvent id="Event_1xtysl4" name="10S">
+    <bpmn:intermediateCatchEvent id="Event_1xtysl4" name="Wait for payment confirmation">
       <bpmn:incoming>Flow_0wczr8k</bpmn:incoming>
       <bpmn:outgoing>Flow_15q997s</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0hydtbq">
@@ -62,7 +62,7 @@
     <bpmn:sequenceFlow id="Flow_0wczr8k" sourceRef="task1" targetRef="Event_1xtysl4" />
     <bpmn:sequenceFlow id="Flow_15q997s" sourceRef="Event_1xtysl4" targetRef="task2" />
     <bpmn:sequenceFlow id="Flow_13sc11o" sourceRef="task2" targetRef="Event_189m53w" />
-    <bpmn:exclusiveGateway id="Gateway_11f3h1s">
+    <bpmn:exclusiveGateway id="Gateway_11f3h1s" name="Shipment accepted?">
       <bpmn:incoming>Flow_08yidnf</bpmn:incoming>
       <bpmn:incoming>Flow_08ka8zl</bpmn:incoming>
       <bpmn:outgoing>Flow_1rwe04q</bpmn:outgoing>
@@ -95,7 +95,7 @@
       <bpmn:endEvent id="Event_1w51d2x">
         <bpmn:incoming>Flow_0npbsma</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:scriptTask id="Activity_0mb9x35" name="Script">
+      <bpmn:scriptTask id="Activity_0mb9x35" name="Log error details">
         <bpmn:extensionElements>
           <zeebe:script expression="=random number()" resultVariable="scriptRandomResult" />
         </bpmn:extensionElements>
@@ -104,7 +104,7 @@
       </bpmn:scriptTask>
       <bpmn:sequenceFlow id="Flow_1ppn6bs" sourceRef="Activity_0mb9x35" targetRef="Activity_13n3s08" />
       <bpmn:sequenceFlow id="Flow_0npbsma" sourceRef="Activity_13n3s08" targetRef="Event_1w51d2x" />
-      <bpmn:callActivity id="Activity_13n3s08" name="Call activity">
+      <bpmn:callActivity id="Activity_13n3s08" name="Manual order review">
         <bpmn:extensionElements>
           <zeebe:calledElement processId="subprocess" propagateAllChildVariables="false" />
         </bpmn:extensionElements>
@@ -121,11 +121,11 @@
     </bpmn:textAnnotation>
     <bpmn:association id="Association_1a5tpgj" associationDirection="None" sourceRef="task1" targetRef="TextAnnotation_0jeqi8l" />
     <bpmn:textAnnotation id="TextAnnotation_1refmik">
-      <bpmn:text>1 in 20 will throw error</bpmn:text>
+      <bpmn:text>1 in 20 triggers a validation or inventory error</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_14bc5wj" associationDirection="None" sourceRef="Event_15vo8eh" targetRef="TextAnnotation_1refmik" />
     <bpmn:textAnnotation id="TextAnnotation_1eejmvg">
-      <bpmn:text>1 in 2 will take this path</bpmn:text>
+      <bpmn:text>Some chance of shipment retry</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0fg6zhr" associationDirection="None" sourceRef="Flow_08ka8zl" targetRef="TextAnnotation_1eejmvg" />
   </bpmn:process>
@@ -136,30 +136,36 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1ytg4oh_di" bpmnElement="task1">
         <dc:Bounds x="320" y="167" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_05d30wn_di" bpmnElement="task2">
         <dc:Bounds x="610" y="167" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0x8l83f_di" bpmnElement="Event_0x8l83f">
         <dc:Bounds x="1352" y="189" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0w4t73j_di" bpmnElement="task3">
         <dc:Bounds x="1030" y="167" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_189m53w_di" bpmnElement="Event_189m53w">
         <dc:Bounds x="782" y="189" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="793" y="232" width="14" height="14" />
+          <dc:Bounds x="756" y="232" width="89" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1635jum" bpmnElement="Event_1xtysl4">
         <dc:Bounds x="482" y="189" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="490" y="232" width="20" height="14" />
+          <dc:Bounds x="459" y="232" width="83" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11f3h1s_di" bpmnElement="Gateway_11f3h1s" isMarkerVisible="true">
         <dc:Bounds x="895" y="182" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="895" y="152" width="51" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11ijceu_di" bpmnElement="Gateway_11ijceu" isMarkerVisible="true">
         <dc:Bounds x="1215" y="182" width="50" height="50" />
@@ -175,6 +181,7 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1izaw07_di" bpmnElement="Activity_0mb9x35">
         <dc:Bounds x="450" y="440" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ulf2sw_di" bpmnElement="Activity_13n3s08">
         <dc:Bounds x="610" y="440" width="100" height="80" />
@@ -200,11 +207,11 @@
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1refmik_di" bpmnElement="TextAnnotation_1refmik">
-        <dc:Bounds x="270" y="280" width="100" height="41" />
+        <dc:Bounds x="270" y="280" width="100" height="55" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_1eejmvg_di" bpmnElement="TextAnnotation_1eejmvg">
-        <dc:Bounds x="1130" y="270" width="100" height="41" />
+        <dc:Bounds x="1130" y="270" width="100" height="55" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_15vo8eh_di" bpmnElement="Event_15vo8eh">
@@ -266,7 +273,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0fg6zhr_di" bpmnElement="Association_0fg6zhr">
         <di:waypoint x="1080" y="340" />
-        <di:waypoint x="1133" y="311" />
+        <di:waypoint x="1130" y="313" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

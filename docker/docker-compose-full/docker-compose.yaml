@@ -48,7 +48,7 @@ services:
       - KAFKA_CLUSTERS_0_PROPERTIES_PRODUCER_VALUE_SERIALIZER=org.apache.kafka.common.serialization.HexSerializer
 
   taktx:
-    image: ghcr.io/taktx-io/taktx-engine:0.1.0-beta-1
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-engine:${IMAGE_TAG:-latest}
     profiles:
       - engine
       - full
@@ -58,11 +58,16 @@ services:
       kafka:
         condition: service_healthy
     environment:
-        - KAFKA_BOOTSTRAP_SERVERS=kafka:9094
-        - TAKTX_NAMESPACE=namespace
-        - TAKTX_LICENSE_FILE_LOCATION=/opt/taktx/licence.lic
-#    volumes:
-#      - ~/.taktx/license.lic:/opt/taktx/licence.lic:ro
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9094
+      # ⚠️  These two values form the Kafka topic prefix (<tenant-id>.<namespace>.*).
+      # Changing them on a cluster with existing data is a BREAKING MIGRATION.
+      # Engine and all its ingesters must always use identical values.
+      - TAKTX_ENGINE_TENANT_ID=acme
+      - TAKTX_ENGINE_NAMESPACE=default
+      # Note: TAKTX_LICENSE_FILE_LOCATION removed — license is delivered via the
+      # taktx-configuration topic (pushed by the ingester at startup).
+      # Note: TAKTX_PLATFORM_PUBLIC_KEY removed — JWT public key resolution uses
+      # taktx-signing-keys by JWT kid. Key is pushed by PlatformKeyPublisher at startup.
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8079/q/health/ready"]
       interval: 10s
@@ -94,14 +99,47 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
-  taktx-console-backend:
-    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-console-backend:${IMAGE_TAG:-latest}
+  taktx-platform-service:
+    # Build locally with: docker compose --profile console up --build
+    # Pull from registry: docker compose --profile console up  (no --build)
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-community-platform-service:${IMAGE_TAG:-latest}
     profiles:
       - console
       - full
     build:
       context: ../backend
-      dockerfile: Dockerfile
+      dockerfile: platform-service/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - QUARKUS_HTTP_PORT=8080
+      # Proxy headers - trust X-Forwarded-* from nginx
+      - QUARKUS_HTTP_PROXY_ENABLED=true
+      - QUARKUS_HTTP_CORS_ENABLED=false
+      - BOOTSTRAP_SERVERS=kafka:9094
+      - TAKTX_ENGINE_TENANT_ID=acme
+      - TAKTX_ENGINE_NAMESPACE=default
+      - TAKTX_PLATFORM_INGESTER_URL=http://taktx-ingester-inmemory:8084
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  taktx-ingester-inmemory:
+    # Build locally with: docker compose --profile console up --build
+    # Pull from registry: docker compose --profile console up  (no --build)
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-community-ingester-inmemory:${IMAGE_TAG:-latest}
+    profiles:
+      - console
+      - full
+    build:
+      context: ../backend
+      dockerfile: ingesters/inmemory/Dockerfile
     # Port exposed for direct backend access (optional, mainly for debugging)
     # When using nginx reverse proxy, this can be commented out
     ports:
@@ -109,32 +147,33 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      taktx-platform-service:
+        condition: service_healthy
     environment:
       - QUARKUS_HTTP_PORT=8084
-      # CORS not needed when using nginx reverse proxy (same-origin)
-      # Keeping these for backward compatibility when accessing backend directly
-      - QUARKUS_HTTP_CORS=false
-      - QUARKUS_HTTP_CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:3002
-      - QUARKUS_HTTP_CORS_METHODS=GET,POST,PUT,DELETE,OPTIONS
-      - QUARKUS_HTTP_CORS_HEADERS=Content-Type,Authorization
-      - QUARKUS_HTTP_CORS_EXPOSED_HEADERS=Content-Type
-      - QUARKUS_HTTP_CORS_ACCESS_CONTROL_ALLOW_CREDENTIALS=true
+      - TAKTX_PLATFORM_URL=http://taktx-platform-service:8080
       - BOOTSTRAP_SERVERS=kafka:9094
-      - TAKTX_ENGINE_NAMESPACE=namespace
-      - TAKTX_CLIENT_GROUPID_INSTANCEUPDATE=taktx-console-backend
+      # ⚠️  Must match TAKTX_ENGINE_TENANT_ID and TAKTX_ENGINE_NAMESPACE on the engine exactly.
+      # Changing these on a cluster with existing data is a BREAKING MIGRATION.
+      - TAKTX_ENGINE_TENANT_ID=acme
+      - TAKTX_ENGINE_NAMESPACE=default
+    # Community edition note: this ingester is in-memory. Its managed data/configuration
+    # is not persisted across restarts. Persisted variants are planned separately and
+    # require the full TaktX Control Console feature set.
     # Optional: Persist TaktX client data (process definitions, etc.)
     # volumes:
     #   - ./taktx-console-data:/home/taktx/.taktx
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/q/health/ready"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/q/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 20
       start_period: 20s
 
   taktx-console-frontend:
-    # Set USE_LOCAL_IMAGES=true to build locally, otherwise pulls from registry
-    image: ${USE_LOCAL_IMAGES:+taktx-console-frontend:local}${USE_LOCAL_IMAGES:-${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-console-frontend:${IMAGE_TAG:-latest}}
+    # Build locally with: docker compose --profile console up --build
+    # Pull from registry: docker compose --profile console up  (no --build)
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-community-console-frontend:${IMAGE_TAG:-latest}
     profiles:
       - console
       - full
@@ -142,19 +181,12 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        # Default: empty string for nginx mode (same-origin, no CORS)
-        # For direct access without nginx, set: NEXT_PUBLIC_TAKTX_BACKEND_URL=http://localhost:8084
-        - NEXT_PUBLIC_TAKTX_BACKEND_URL=${NEXT_PUBLIC_TAKTX_BACKEND_URL:-}
-        - NEXT_PUBLIC_TAKTX_WS_URL=${NEXT_PUBLIC_TAKTX_WS_URL:-/ws}
-      tags:
-        - taktx-console-frontend:local
-        - ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_ORG:-taktx-io}/taktx-console-frontend:${IMAGE_TAG:-latest}
-    # Port exposed for direct frontend access (optional when using nginx)
-    # When using nginx reverse proxy, this can be commented out
+        # Empty = relative URLs via nginx — works on any domain without rebuild
+        - NEXT_PUBLIC_PLATFORM_SERVICE_URL=
     ports:
       - "3001:3000"
     depends_on:
-      taktx-console-backend:
+      taktx-platform-service:
         condition: service_healthy
     environment:
       - NODE_ENV=production
@@ -180,10 +212,10 @@ services:
     depends_on:
       taktx-console-frontend:
         condition: service_healthy
-      taktx-console-backend:
+      taktx-platform-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/nginx-health"]
       interval: 10s
       timeout: 5s
       retries: 3
