@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_dmnDrg" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1">
+  <bpmn:process id="dmn-drg" name="Loan Approval (DMN DRG)" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_drg" name="Loan Application Received">
+      <bpmn:outgoing>Flow_toEvaluateLoan</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:businessRuleTask id="evaluateLoanApproval" name="Evaluate Loan Approval (DRG)">
+      <bpmn:extensionElements>
+        <zeebe:calledDecision decisionId="loanApproval" resultVariable="loanApprovalResult" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=720" target="creditScore" />
+          <zeebe:input source="=28.5" target="debtToIncomeRatio" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toEvaluateLoan</bpmn:incoming>
+      <bpmn:outgoing>Flow_toDrgGateway</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gateway_loanDecision" name="Loan Decision?" default="Flow_1s0604q">
+      <bpmn:incoming>Flow_toDrgGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_toApproveLoan</bpmn:outgoing>
+      <bpmn:outgoing>Flow_toApproveConditional</bpmn:outgoing>
+      <bpmn:outgoing>Flow_toManualReviewDrg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_toRejectLoan</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1s0604q</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="approveLoan" name="Approve Loan">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="approve-loan" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toApproveLoan</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEndApprovedDrg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="approveConditionalLoan" name="Approve with Conditions">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="approve-loan" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toApproveConditional</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEndConditionalDrg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="manualReviewLoan" name="Manual Review">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="assign-manual-review" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toManualReviewDrg</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEndReviewDrg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="rejectLoan" name="Send Rejection Notice">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="send-rejection-notice" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toRejectLoan</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEndRejectedDrg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_approvedDrg" name="Loan Approved">
+      <bpmn:incoming>Flow_toEndApprovedDrg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_conditionalDrg" name="Conditionally Approved">
+      <bpmn:incoming>Flow_toEndConditionalDrg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_reviewDrg" name="Under Review">
+      <bpmn:incoming>Flow_toEndReviewDrg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_rejectedDrg" name="Loan Rejected">
+      <bpmn:incoming>Flow_toEndRejectedDrg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_toEvaluateLoan" sourceRef="StartEvent_drg" targetRef="evaluateLoanApproval" />
+    <bpmn:sequenceFlow id="Flow_toDrgGateway" sourceRef="evaluateLoanApproval" targetRef="Gateway_loanDecision" />
+    <bpmn:sequenceFlow id="Flow_toApproveLoan" sourceRef="Gateway_loanDecision" targetRef="approveLoan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=loanApprovalResult.approvalDecision = "APPROVED"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_toApproveConditional" sourceRef="Gateway_loanDecision" targetRef="approveConditionalLoan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=loanApprovalResult.approvalDecision = "APPROVED_CONDITIONAL"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_toManualReviewDrg" sourceRef="Gateway_loanDecision" targetRef="manualReviewLoan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=loanApprovalResult.approvalDecision = "MANUAL_REVIEW"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_toRejectLoan" sourceRef="Gateway_loanDecision" targetRef="rejectLoan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=loanApprovalResult.approvalDecision = "REJECTED"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_toEndApprovedDrg" sourceRef="approveLoan" targetRef="EndEvent_approvedDrg" />
+    <bpmn:sequenceFlow id="Flow_toEndConditionalDrg" sourceRef="approveConditionalLoan" targetRef="EndEvent_conditionalDrg" />
+    <bpmn:sequenceFlow id="Flow_toEndReviewDrg" sourceRef="manualReviewLoan" targetRef="EndEvent_reviewDrg" />
+    <bpmn:sequenceFlow id="Flow_toEndRejectedDrg" sourceRef="rejectLoan" targetRef="EndEvent_rejectedDrg" />
+    <bpmn:endEvent id="Event_1l9xkel">
+      <bpmn:incoming>Flow_1s0604q</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1s0604q" sourceRef="Gateway_loanDecision" targetRef="Event_1l9xkel" />
+    <bpmn:textAnnotation id="Ann_drgRef">
+      <bpmn:text>DMN: loan-approval-drg.dmn
+DRG top-level decision: loanApproval
+Auto-evaluated sub-decisions:
+  creditScoreRating, debtToIncomeRating
+Result: loanApprovalResult.{approvalDecision, interestRate}</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_drgRef" associationDirection="None" sourceRef="evaluateLoanApproval" targetRef="Ann_drgRef" />
+    <bpmn:textAnnotation id="Ann_drgInputs">
+      <bpmn:text>Inputs (set inline):
+creditScore       = 720
+debtToIncomeRatio = 28.5</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_drgInputs" associationDirection="None" sourceRef="StartEvent_drg" targetRef="Ann_drgInputs" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_dmnDrg">
+    <bpmndi:BPMNPlane id="BPMNPlane_dmnDrg" bpmnElement="dmn-drg">
+      <bpmndi:BPMNShape id="StartEvent_drg_di" bpmnElement="StartEvent_drg">
+        <dc:Bounds x="259" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="237" y="255" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="evaluateLoanApproval_di" bpmnElement="evaluateLoanApproval">
+        <dc:Bounds x="360" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_loanDecision_di" bpmnElement="Gateway_loanDecision" isMarkerVisible="true">
+        <dc:Bounds x="535" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="595" y="223" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveLoan_di" bpmnElement="approveLoan">
+        <dc:Bounds x="660" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveConditionalLoan_di" bpmnElement="approveConditionalLoan">
+        <dc:Bounds x="660" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="manualReviewLoan_di" bpmnElement="manualReviewLoan">
+        <dc:Bounds x="660" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectLoan_di" bpmnElement="rejectLoan">
+        <dc:Bounds x="660" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_approvedDrg_di" bpmnElement="EndEvent_approvedDrg">
+        <dc:Bounds x="832" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="813" y="185" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_conditionalDrg_di" bpmnElement="EndEvent_conditionalDrg">
+        <dc:Bounds x="832" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="818" y="315" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_reviewDrg_di" bpmnElement="EndEvent_reviewDrg">
+        <dc:Bounds x="832" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="815" y="445" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_rejectedDrg_di" bpmnElement="EndEvent_rejectedDrg">
+        <dc:Bounds x="832" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="815" y="575" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1l9xkel_di" bpmnElement="Event_1l9xkel">
+        <dc:Bounds x="832" y="652" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Ann_drgRef_di" bpmnElement="Ann_drgRef">
+        <dc:Bounds x="330" y="80" width="280" height="98" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Ann_drgInputs_di" bpmnElement="Ann_drgInputs">
+        <dc:Bounds x="160" y="142" width="150" height="96" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_toEvaluateLoan_di" bpmnElement="Flow_toEvaluateLoan">
+        <di:waypoint x="295" y="230" />
+        <di:waypoint x="360" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toDrgGateway_di" bpmnElement="Flow_toDrgGateway">
+        <di:waypoint x="460" y="230" />
+        <di:waypoint x="535" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toApproveLoan_di" bpmnElement="Flow_toApproveLoan">
+        <di:waypoint x="560" y="205" />
+        <di:waypoint x="560" y="160" />
+        <di:waypoint x="660" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toApproveConditional_di" bpmnElement="Flow_toApproveConditional">
+        <di:waypoint x="585" y="230" />
+        <di:waypoint x="660" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toManualReviewDrg_di" bpmnElement="Flow_toManualReviewDrg">
+        <di:waypoint x="560" y="255" />
+        <di:waypoint x="560" y="420" />
+        <di:waypoint x="660" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toRejectLoan_di" bpmnElement="Flow_toRejectLoan">
+        <di:waypoint x="560" y="255" />
+        <di:waypoint x="560" y="550" />
+        <di:waypoint x="660" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEndApprovedDrg_di" bpmnElement="Flow_toEndApprovedDrg">
+        <di:waypoint x="760" y="160" />
+        <di:waypoint x="832" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEndConditionalDrg_di" bpmnElement="Flow_toEndConditionalDrg">
+        <di:waypoint x="760" y="290" />
+        <di:waypoint x="832" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEndReviewDrg_di" bpmnElement="Flow_toEndReviewDrg">
+        <di:waypoint x="760" y="420" />
+        <di:waypoint x="832" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEndRejectedDrg_di" bpmnElement="Flow_toEndRejectedDrg">
+        <di:waypoint x="760" y="550" />
+        <di:waypoint x="832" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_drgRef_di" bpmnElement="Assoc_drgRef">
+        <di:waypoint x="410" y="190" />
+        <di:waypoint x="410" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Assoc_drgInputs_di" bpmnElement="Assoc_drgInputs">
+        <di:waypoint x="277" y="212" />
+        <di:waypoint x="277" y="212" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1s0604q_di" bpmnElement="Flow_1s0604q">
+        <di:waypoint x="560" y="255" />
+        <di:waypoint x="560" y="670" />
+        <di:waypoint x="832" y="670" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

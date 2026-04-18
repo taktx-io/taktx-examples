@@ -5,7 +5,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import io.taktx.client.annotation.Deployment;
 
 @QuarkusMain
-@Deployment(resources = "classpath:bpmn/*.bpmn")
+@Deployment(resources = {"classpath:bpmn/*.bpmn"}, dmnResources = {"classpath:dmn/*.dmn"})
 public class Main {
 
   public static void main(String... args) {

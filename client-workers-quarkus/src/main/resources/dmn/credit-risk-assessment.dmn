@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             id="creditRiskAssessmentDefinitions"
+             name="Credit Risk Assessment"
+             namespace="http://camunda.org/schema/1.0/dmn">
+
+  <!--
+    Single Decision Table: Credit Risk Assessment
+    ==============================================
+    Evaluates credit risk based on applicant's credit score and requested loan amount.
+
+    Inputs:
+      - creditScore     (integer) : applicant FICO/credit score, e.g. 720
+      - loanAmount      (integer) : requested loan amount in USD, e.g. 15000
+
+    Outputs (stored together in the result variable):
+      - riskCategory          (string)  : HIGH | MEDIUM | LOW | VERY_LOW
+      - approved              (boolean) : whether the loan is approved outright
+      - requiresManualReview  (boolean) : whether a human must review the application
+
+    Hit Policy: FIRST – the first matching rule wins.
+  -->
+  <decision id="creditRiskAssessment" name="Credit Risk Assessment">
+    <decisionTable id="decisionTable_creditRisk" hitPolicy="FIRST">
+
+      <input id="in_creditScore" label="Credit Score">
+        <inputExpression id="ie_creditScore" typeRef="integer">
+          <text>creditScore</text>
+        </inputExpression>
+      </input>
+
+      <input id="in_loanAmount" label="Loan Amount">
+        <inputExpression id="ie_loanAmount" typeRef="integer">
+          <text>loanAmount</text>
+        </inputExpression>
+      </input>
+
+      <output id="out_riskCategory"         label="Risk Category"         name="riskCategory"         typeRef="string"/>
+      <output id="out_approved"             label="Approved"              name="approved"             typeRef="boolean"/>
+      <output id="out_requiresManualReview" label="Requires Manual Review" name="requiresManualReview" typeRef="boolean"/>
+
+      <!-- Rule 1: Poor credit (<580) → HIGH risk, always rejected regardless of amount -->
+      <rule id="rule1">
+        <description>Poor credit score: always reject</description>
+        <inputEntry id="ie1_1"><text>&lt; 580</text></inputEntry>
+        <inputEntry id="ie1_2"><text></text></inputEntry>
+        <outputEntry id="oe1_1"><text>"HIGH"</text></outputEntry>
+        <outputEntry id="oe1_2"><text>false</text></outputEntry>
+        <outputEntry id="oe1_3"><text>false</text></outputEntry>
+      </rule>
+
+      <!-- Rule 2: Fair credit (580-669) + small loan (≤10000) → MEDIUM risk, approved -->
+      <rule id="rule2">
+        <description>Fair credit, small loan: approve with medium risk</description>
+        <inputEntry id="ie2_1"><text>[580..669]</text></inputEntry>
+        <inputEntry id="ie2_2"><text>&lt;= 10000</text></inputEntry>
+        <outputEntry id="oe2_1"><text>"MEDIUM"</text></outputEntry>
+        <outputEntry id="oe2_2"><text>true</text></outputEntry>
+        <outputEntry id="oe2_3"><text>false</text></outputEntry>
+      </rule>
+
+      <!-- Rule 3: Fair credit (580-669) + large loan (>10000) → MEDIUM risk, manual review -->
+      <rule id="rule3">
+        <description>Fair credit, large loan: send to manual review</description>
+        <inputEntry id="ie3_1"><text>[580..669]</text></inputEntry>
+        <inputEntry id="ie3_2"><text>&gt; 10000</text></inputEntry>
+        <outputEntry id="oe3_1"><text>"MEDIUM"</text></outputEntry>
+        <outputEntry id="oe3_2"><text>false</text></outputEntry>
+        <outputEntry id="oe3_3"><text>true</text></outputEntry>
+      </rule>
+
+      <!-- Rule 4: Good credit (670-739) → LOW risk, approved for any amount -->
+      <rule id="rule4">
+        <description>Good credit score: approve with low risk</description>
+        <inputEntry id="ie4_1"><text>[670..739]</text></inputEntry>
+        <inputEntry id="ie4_2"><text></text></inputEntry>
+        <outputEntry id="oe4_1"><text>"LOW"</text></outputEntry>
+        <outputEntry id="oe4_2"><text>true</text></outputEntry>
+        <outputEntry id="oe4_3"><text>false</text></outputEntry>
+      </rule>
+
+      <!-- Rule 5: Very good/exceptional credit (≥740) → VERY_LOW risk, approved -->
+      <rule id="rule5">
+        <description>Excellent credit score: approve with very low risk</description>
+        <inputEntry id="ie5_1"><text>&gt;= 740</text></inputEntry>
+        <inputEntry id="ie5_2"><text></text></inputEntry>
+        <outputEntry id="oe5_1"><text>"VERY_LOW"</text></outputEntry>
+        <outputEntry id="oe5_2"><text>true</text></outputEntry>
+        <outputEntry id="oe5_3"><text>false</text></outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_creditRisk" name="Credit Risk Assessment">
+      <dmndi:DMNShape id="DMNShape_creditRiskAssessment" dmnElementRef="creditRiskAssessment">
+        <dc:Bounds height="80" width="180" x="160" y="80"/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+
+</definitions>
+

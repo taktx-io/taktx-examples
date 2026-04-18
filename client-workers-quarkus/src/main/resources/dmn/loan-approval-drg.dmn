@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" id="loanApprovalDRGDefinitions" name="Loan Approval DRG" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.40.1">
+  <decision id="creditScoreRating" name="Credit Score Rating">
+    <decisionTable id="dt_creditScoreRating" hitPolicy="FIRST">
+      <input id="in_cs" label="Credit Score">
+        <inputExpression id="ie_cs" typeRef="integer">
+          <text>creditScore</text>
+        </inputExpression>
+      </input>
+      <output id="out_csRating" label="Credit Rating" name="creditRating" typeRef="string" />
+      <rule id="r_cs_1">
+        <description>Below 580: Poor</description>
+        <inputEntry id="ie_cs_1">
+          <text>&lt; 580</text>
+        </inputEntry>
+        <outputEntry id="oe_cs_1">
+          <text>"POOR"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_cs_2">
+        <description>580-669: Fair</description>
+        <inputEntry id="ie_cs_2">
+          <text>[580..669]</text>
+        </inputEntry>
+        <outputEntry id="oe_cs_2">
+          <text>"FAIR"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_cs_3">
+        <description>670-739: Good</description>
+        <inputEntry id="ie_cs_3">
+          <text>[670..739]</text>
+        </inputEntry>
+        <outputEntry id="oe_cs_3">
+          <text>"GOOD"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_cs_4">
+        <description>740-799: Very Good</description>
+        <inputEntry id="ie_cs_4">
+          <text>[740..799]</text>
+        </inputEntry>
+        <outputEntry id="oe_cs_4">
+          <text>"VERY_GOOD"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_cs_5">
+        <description>800+: Exceptional</description>
+        <inputEntry id="ie_cs_5">
+          <text>&gt;= 800</text>
+        </inputEntry>
+        <outputEntry id="oe_cs_5">
+          <text>"EXCEPTIONAL"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="debtToIncomeRating" name="Debt-to-Income Rating">
+    <decisionTable id="dt_dtiRating" hitPolicy="FIRST">
+      <input id="in_dti" label="Debt-to-Income Ratio (%)">
+        <inputExpression id="ie_dti" typeRef="double">
+          <text>debtToIncomeRatio</text>
+        </inputExpression>
+      </input>
+      <output id="out_dtiRating" label="DTI Rating" name="dtiRating" typeRef="string" />
+      <rule id="r_dti_1">
+        <description>Up to 20%: Excellent</description>
+        <inputEntry id="ie_dti_1">
+          <text>&lt;= 20</text>
+        </inputEntry>
+        <outputEntry id="oe_dti_1">
+          <text>"EXCELLENT"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_dti_2">
+        <description>20-36%: Good</description>
+        <inputEntry id="ie_dti_2">
+          <text>(20..36]</text>
+        </inputEntry>
+        <outputEntry id="oe_dti_2">
+          <text>"GOOD"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_dti_3">
+        <description>36-43%: Acceptable</description>
+        <inputEntry id="ie_dti_3">
+          <text>(36..43]</text>
+        </inputEntry>
+        <outputEntry id="oe_dti_3">
+          <text>"ACCEPTABLE"</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_dti_4">
+        <description>Above 43%: Poor</description>
+        <inputEntry id="ie_dti_4">
+          <text>&gt; 43</text>
+        </inputEntry>
+        <outputEntry id="oe_dti_4">
+          <text>"POOR"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="loanApproval" name="Loan Approval">
+    <informationRequirement id="ir_creditScore">
+      <requiredDecision href="#creditScoreRating" />
+    </informationRequirement>
+    <informationRequirement id="ir_dti">
+      <requiredDecision href="#debtToIncomeRating" />
+    </informationRequirement>
+    <decisionTable id="dt_loanApproval" hitPolicy="FIRST">
+      <input id="in_csRating" label="Credit Rating">
+        <inputExpression id="ie_csRating" typeRef="string">
+          <text>creditScoreRating</text>
+        </inputExpression>
+      </input>
+      <input id="in_dtiRating" label="DTI Rating">
+        <inputExpression id="ie_dtiRating" typeRef="string">
+          <text>debtToIncomeRating</text>
+        </inputExpression>
+      </input>
+      <output id="out_approvalDecision" label="Approval Decision" name="approvalDecision" typeRef="string" />
+      <output id="out_interestRate" label="Interest Rate (%)" name="interestRate" typeRef="double" />
+      <rule id="r_la_1">
+        <description>Poor credit: reject regardless of DTI</description>
+        <inputEntry id="ie_la_1_1">
+          <text>"POOR"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_1_2">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="oe_la_1_1">
+          <text>"REJECTED"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_1_2">
+          <text>null</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_2">
+        <description>Poor DTI: reject regardless of credit rating</description>
+        <inputEntry id="ie_la_2_1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="ie_la_2_2">
+          <text>"POOR"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_2_1">
+          <text>"REJECTED"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_2_2">
+          <text>null</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_3">
+        <description>Fair credit with acceptable DTI: conditional approval</description>
+        <inputEntry id="ie_la_3_1">
+          <text>"FAIR"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_3_2">
+          <text>"EXCELLENT","GOOD","ACCEPTABLE"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_3_1">
+          <text>"APPROVED_CONDITIONAL"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_3_2">
+          <text>8.5</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_4">
+        <description>Good credit with good DTI: approve</description>
+        <inputEntry id="ie_la_4_1">
+          <text>"GOOD"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_4_2">
+          <text>"EXCELLENT","GOOD"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_4_1">
+          <text>"APPROVED"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_4_2">
+          <text>6.5</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_5">
+        <description>Good credit with acceptable DTI: manual review required</description>
+        <inputEntry id="ie_la_5_1">
+          <text>"GOOD"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_5_2">
+          <text>"ACCEPTABLE"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_5_1">
+          <text>"MANUAL_REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_5_2">
+          <text>7.0</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_6">
+        <description>Very good credit with good DTI: approve at preferred rate</description>
+        <inputEntry id="ie_la_6_1">
+          <text>"VERY_GOOD"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_6_2">
+          <text>"EXCELLENT","GOOD","ACCEPTABLE"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_6_1">
+          <text>"APPROVED"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_6_2">
+          <text>5.0</text>
+        </outputEntry>
+      </rule>
+      <rule id="r_la_7">
+        <description>Exceptional credit with good DTI: approve at best rate</description>
+        <inputEntry id="ie_la_7_1">
+          <text>"EXCEPTIONAL"</text>
+        </inputEntry>
+        <inputEntry id="ie_la_7_2">
+          <text>"EXCELLENT","GOOD","ACCEPTABLE"</text>
+        </inputEntry>
+        <outputEntry id="oe_la_7_1">
+          <text>"APPROVED"</text>
+        </outputEntry>
+        <outputEntry id="oe_la_7_2">
+          <text>3.5</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_loanApproval" name="Loan Approval DRG">
+      <dmndi:DMNShape id="DMNShape_creditScoreRating" dmnElementRef="creditScoreRating">
+        <dc:Bounds height="80" width="180" x="80" y="80" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_debtToIncomeRating" dmnElementRef="debtToIncomeRating">
+        <dc:Bounds height="80" width="180" x="80" y="240" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_loanApproval" dmnElementRef="loanApproval">
+        <dc:Bounds height="80" width="180" x="380" y="160" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_ir_creditScore" dmnElementRef="ir_creditScore">
+        <di:waypoint x="260" y="120" />
+        <di:waypoint x="380" y="200" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_ir_dti" dmnElementRef="ir_dti">
+        <di:waypoint x="260" y="280" />
+        <di:waypoint x="380" y="200" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>
